@@ -2,7 +2,7 @@ import { useState } from 'react'
 import {useNavigate} from 'react-router-dom'
 import axios from "axios"
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/$/, '');
 
 const Form = () => {
     const [name, setName] = useState('')
@@ -15,6 +15,7 @@ const Form = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
       try {
         await axios.post(`${API_URL}/api/profiles`, {
           name,
@@ -24,8 +25,8 @@ const Form = () => {
           age: Number(age)
         });
         navigate('/api/profile');
-      } catch {
-        setError('Could not save profile. Please try again.');
+      } catch (requestError) {
+        setError(requestError.response?.data?.message || 'Could not save profile. Please try again.');
       }
     }
 

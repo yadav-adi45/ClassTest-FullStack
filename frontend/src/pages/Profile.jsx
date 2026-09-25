@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/$/, '');
 
 const Profile = () => {
   const [profile, setProfile] = useState([]);
@@ -22,16 +22,6 @@ const Profile = () => {
     getprofile();
   }, []);
 
-  const updateProfile = async (profileId) => {
-    try {
-      if (!profileId) return;
-      const result = await axios.get(`${API_URL}/api/profiles/${profileId}`);
-      setProfile(result.data);
-    } catch {
-      setError('Could not load profile');
-    }
-  }
-
   return (
     <div>
     <h1>Profiles</h1>
@@ -44,7 +34,6 @@ const Profile = () => {
             <p>phone={profile.phone}</p>
             <p>address={profile.address}</p>
             <p>age={profile.age}</p>
-      <button onClick={() => updateProfile(profile.id)}>Update</button>
         </div>
     )
       })}
