@@ -59,8 +59,11 @@ export const updateProfile = async (req,res)=>{
     try{
         const {name,email,phone,address,age} = req.body;
         const id = Number(req.params.id);
+        if (!name || !email || !phone || !address || !Number.isInteger(Number(age))) {
+            return res.status(400).json({ message: "All profile fields are required" });
+        }
         const result = await pool.query(
-            "UPDATE profile SET name=$1,email=$2,phone=$3,address=$4,age=$5 WHERE id = $6 RETURNING *",[name,email,phone,address,age,id]
+            "UPDATE profile SET name=$1,email=$2,phone=$3,address=$4,age=$5,updatedAt=CURRENT_DATE WHERE id = $6 RETURNING *",[name,email,phone,address,age,id]
         )
         if(result.rows.length===0){
             return res.status(404).json({
@@ -75,6 +78,9 @@ export const updateProfile = async (req,res)=>{
 
     }catch(error){
         console.error("Could not update profile", error)
+        if (error.code === "23505") {
+            return res.status(409).json({ message: "A profile with this email already exists" });
+        }
         res.status(500).json({ message: "Could not update profile" })
     }
 }
