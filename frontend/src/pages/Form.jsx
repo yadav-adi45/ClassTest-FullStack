@@ -10,23 +10,29 @@ const Form = () => {
     const [phone, setPhone] = useState('')
     const [address, setAddress] = useState('')
     const [age, setAge] = useState('')
+    const [error, setError] = useState('')
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+      try {
         await axios.post(`${API_URL}/api/profiles`, {
-            name,
-            email,
-            phone,
-            address,
-            age: Number(age)
+          name,
+          email,
+          phone,
+          address,
+          age: Number(age)
         });
         navigate('/api/profile');
+      } catch {
+        setError('Could not save profile. Please try again.');
+      }
     }
 
   return (
     <div>
       <form onSubmit={handleSubmit}>
+        {error && <p>{error}</p>}
         <input
         type='text'
         placeholder='name'
