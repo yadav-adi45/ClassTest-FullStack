@@ -5,27 +5,37 @@ export const createProfile = async (req,res)=>{
     try{
         const {name,email,phone,address,age}=req.body;
         const result = await pool.query(
-            "INSERT INTO students (name,email,phone,address,age) VALUES (name=$1,email=$2,phone=$3,address=$4,age=$5) RETURNING *",[name,email,phone,address,age]
+            "INSERT INTO profile (id,name,email,phone,address,age) VALUES ((SELECT COALESCE(MAX(id), 0) + 1 FROM profile),$1,$2,$3,$4,$5) RETURNING *",[name,email,phone,address,age]
         )
         if(result.rows.length===0){
             res.status(400).json({
                 message: "coudn't create profile"
             })
         }
-        res.json({
+        return res.json({
             "success": true,
-            "message": "Profile successfully created"
-        },result.rows[0])
+            "message": "Profile successfully created",
+            "profile": result.rows[0]
+        })
 
     }catch(error){
         res.status(500).json({ message: "error occured while creating file"})
     }
 }
 
+export const getProfiles = async (req,res)=>{
+    try {
+        const result = await pool.query("SELECT * FROM profile ORDER BY id");
+        res.json(result.rows);
+    } catch (error) {
+        res.status(500).json({ message: "could not get profiles" });
+    }
+}
+
 export const getProfile = async (req,res)=>{
     try {
         const id = Number(req.params.id);
-        const result = await pool.query("SELECT * FROM profile WHERE id = $1 RETURNING *",[id]);
+        const result = await pool.query("SELECT * FROM profile WHERE id = $1",[id]);
         if(result.rows.length===0){
             return res.status(404).json({
                 message: "profile not found"
@@ -33,7 +43,8 @@ export const getProfile = async (req,res)=>{
         }
         res.json({
             "success": true
-        },result.rows[0]);
+            ,"profile": result.rows[0]
+        });
 
     } catch (error) {
         res.status(500).json({ message: "could not get profile" });
@@ -54,8 +65,9 @@ export const updateProfile = async (req,res)=>{
         }
         res.json({
             "success": true,
-            "message": "Updated Successfully"
-        },result.rows[0])
+            "message": "Updated Successfully",
+            "profile": result.rows[0]
+        })
 
     }catch(error){
         console.log("Error occured while updating")
