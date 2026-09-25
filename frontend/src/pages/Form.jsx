@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import {useNavigate} from 'react-router-dom'
 import axios from "axios"
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 const Form = () => {
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
@@ -11,7 +14,7 @@ const Form = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        await axios.post('http://localhost:3000/api/profiles', {
+        await axios.post(`${API_URL}/api/profiles`, {
             name,
             email,
             phone,

@@ -1,35 +1,36 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 const Profile = () => {
   const [profile, setProfile] = useState([]);
   const [error, setError] = useState('');
 
   const getprofile = async () => {
     try {
-      const result = await axios.get('http://localhost:3000/api/profile');
+      const result = await axios.get(`${API_URL}/api/profiles`);
       setProfile(result.data);
-    } catch (error) {
+    } catch {
       setError('Could not load profile');
     }
   }
 
   useEffect(() => {
+    // The request synchronizes the initial profile state with the API.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     getprofile();
   }, []);
 
-  const updateProfile = async () => {
+  const updateProfile = async (profileId) => {
     try {
-      const result = await axios.get('http://localhost:3000/api/profile/:id');
+      if (!profileId) return;
+      const result = await axios.get(`${API_URL}/api/profiles/${profileId}`);
       setProfile(result.data);
-    } catch (error) {
+    } catch {
       setError('Could not load profile');
     }
   }
-
-  useEffect(() => {
-    updateProfile();
-  }, []);
 
   return (
     <div>
